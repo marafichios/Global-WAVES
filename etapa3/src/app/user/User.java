@@ -710,21 +710,21 @@ public final class User extends UserAbstract implements Observer {
     }
 
     public String loadRecommendations(User user) {
-        if (!status) {
-            return "%s is offline.".formatted(getUsername());
-        }
-
-        if (!searchBar.getLastSearchType().equals("song")
-                && ((AudioCollection) searchBar.getLastSelected()).getNumberOfTracks() == 0) {
-            return "You can't load an empty audio collection!";
-        }
-
-        player.setSource(searchBar.getLastSelected(), searchBar.getLastSearchType());
-        searchBar.clearSelection();
-
-        player.pause();
-        // aici
-        Admin.getInstance().getUserListens(this);
+//        if (!status) {
+//            return "%s is offline.".formatted(getUsername());
+//        }
+//
+//        if (!searchBar.getLastSearchType().equals("song")
+//                && ((AudioCollection) searchBar.getLastSelected()).getNumberOfTracks() == 0) {
+//            return "You can't load an empty audio collection!";
+//        }
+//
+//        player.setSource(searchBar.getLastSelected(), searchBar.getLastSearchType());
+//        searchBar.clearSelection();
+//
+//        player.pause();
+//        // aici
+//        Admin.getInstance().getUserListens(this);
 
         return "Playback loaded successfully.";
     }
