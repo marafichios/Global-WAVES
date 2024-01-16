@@ -908,13 +908,13 @@ public final class CommandRunner {
 
     public static ObjectNode loadRecommendations(CommandInput commandInput) {
         User user = admin.getUser(commandInput.getUsername());
-        String message = user.loadRecommendations(user);
+        //String message = user.loadRecommendations(user);
 
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("command", commandInput.getCommand());
         objectNode.put("user", user.getUsername());
         objectNode.put("timestamp", commandInput.getTimestamp());
-        objectNode.put("message", message);
+        //objectNode.put("message", message);
         return objectNode;
     }
 }
