@@ -10,9 +10,6 @@ import app.audio.Files.Song;
 import app.audio.LibraryEntry;
 import app.pages.*;
 import app.player.Player;
-import app.searchBar.FilterUtils;
-import app.searchBar.Filters;
-import app.searchBar.SearchBar;
 import app.user.*;
 import app.utils.Enums;
 import app.utils.Notifications;
@@ -24,6 +21,7 @@ import fileio.input.PodcastInput;
 import fileio.input.SongInput;
 import fileio.input.UserInput;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,7 +50,9 @@ public final class Admin {
     private final int dateDayHigherLimit = 31;
     private final int dateFebHigherLimit = 28;
     private static Admin instance;
-    Map<String, User> usersmap = new HashMap<>();
+    @Getter
+    @Setter
+    private Map<String, User> usersmap = new HashMap<>();
 
 
     private Admin() {
@@ -392,7 +392,8 @@ public final class Admin {
                                                 username,
                                                 newSongs,
                                                 commandInput.getReleaseYear()));
-        Notifications notification = new Notifications("New Album", "New Album from " + currentArtist.getUsername() + ".");
+        Notifications notification = new Notifications("New Album",
+                "New Album from " + currentArtist.getUsername() + ".");
         currentArtist.notifyObservers(notification);
         return "%s has added new album successfully.".formatted(username);
     }
@@ -553,7 +554,8 @@ public final class Admin {
         currentArtist.getEvents().add(new Event(eventName,
                                                 commandInput.getDescription(),
                                                 commandInput.getDate()));
-        Notifications notification = new Notifications("New Event", "New Event from " + currentArtist.getUsername() + ".");
+        Notifications notification = new Notifications("New Event",
+                "New Event from " + currentArtist.getUsername() + ".");
         currentArtist.notifyObservers(notification);
         return "%s has added new event successfully.".formatted(username);
     }
@@ -638,7 +640,8 @@ public final class Admin {
         currentArtist.getMerch().add(new Merchandise(commandInput.getName(),
                                                      commandInput.getDescription(),
                                                      commandInput.getPrice()));
-        Notifications notification = new Notifications("New Merchandise", "New Merchandise from " + currentArtist.getUsername() + ".");
+        Notifications notification = new Notifications("New Merchandise",
+                "New Merchandise from " + currentArtist.getUsername() + ".");
         currentArtist.notifyObservers(notification);
         //clear the notification
         return "%s has added new merchandise successfully.".formatted(username);
@@ -891,7 +894,7 @@ public final class Admin {
 
     private Integer artistListenCount = 0;
 
-    private void updateUser(User user, Song song) {
+    private void updateUser(final User user, final Song song) {
         if (user.getWrappedResult().getTopAlbums().containsKey(song.getName())) {
             user.getWrappedResult().getTopAlbums().put(song.getName(),
                     user.getWrappedResult().getTopAlbums().get(song.getName()) + 1);
@@ -921,7 +924,7 @@ public final class Admin {
         }
     }
 
-    public void getUserListens(User user) {
+    public void getUserListens(final User user) {
         if (user == null) {
             return;
         }
@@ -955,7 +958,7 @@ public final class Admin {
 
     }
 
-        public ObjectNode generateEndProgramSummary(ObjectMapper objectMapper) {
+        public ObjectNode generateEndProgramSummary(final ObjectMapper objectMapper) {
         ObjectNode resultNode = objectMapper.createObjectNode();
 
         // Artist summaries
@@ -1000,17 +1003,17 @@ public final class Admin {
         return resultNode;
     }
 
-    private double calculateMerchRevenueForArtist(Artist artist) {
+    private double calculateMerchRevenueForArtist(final Artist artist) {
         return artist.getMerch().stream()
                 .mapToDouble(Merchandise::getPrice)
                 .sum();
     }
 
-    private double calculateSongRevenueForArtist(Artist artist) {
+    private double calculateSongRevenueForArtist(final Artist artist) {
         return 0.0;
     }
 
-    private String findMostProfitableSongForArtist(Artist artist) {
+    private String findMostProfitableSongForArtist(final Artist artist) {
         return "N/A";
     }
 
@@ -1044,7 +1047,7 @@ public final class Admin {
 
     }
 
-    public String updateRecommendationsSongs(User user) {
+    public String updateRecommendationsSongs(final User user) {
         if (user.getPlayer() == null || user.getPlayer().getSource() == null) {
             return "No song is playing at the moment.";
         }
