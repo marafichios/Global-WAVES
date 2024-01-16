@@ -71,6 +71,12 @@ public final class User extends UserAbstract implements Observer {
     @Getter
     @Setter
     private List<Playlist> playlistRecommendations = new ArrayList<>();
+    @Getter
+    @Setter
+    private Map<String, Integer> topGenres = new HashMap<>();
+    @Getter
+    @Setter
+    private String lastTypeOfRecommendation;
 
 
 

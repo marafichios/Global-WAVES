@@ -43,7 +43,9 @@ public final class HomePage implements Page {
                                   - o1.getSongs().stream().map(Song::getLikes).reduce(Integer::sum)
                                   .orElse(0)).limit(limit).map(Playlist::getName)
                           .toList(),
-                          songRecommendations.stream().sorted(Comparator.comparing(Song::getName)).limit(limit).map(Song::getName).toList(),
+                          //get first song from list of recommendations
+                          songRecommendations.stream().sorted(Comparator.comparing(Song::getName))
+                                    .limit(1).map(Song::getName).toList(),
                           playlistRecommendations.stream().sorted(Comparator.comparing(Playlist::getName)).limit(limit).map(Playlist::getName).toList());
     }
 

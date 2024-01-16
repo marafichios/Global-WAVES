@@ -1056,7 +1056,7 @@ public final class Admin {
         int listenedTime = songDuration - remainingTime;
         List<Song> sameGenreSongs = new ArrayList<>();
 
-        if (listenedTime > 30) {
+        if (listenedTime >= 30) {
             List<LibraryEntry> entries = new ArrayList<>(getSongs());
 
             Song song = (Song) user.getPlayer().getSource().getAudioFile();
@@ -1088,7 +1088,7 @@ public final class Admin {
     }
 
 
-    public String updateRecommendationsPlaylists(User user, CommandInput commandInput) {
+    public String updateRecommendationsPlaylistsFans(User user, CommandInput commandInput) {
         String username = commandInput.getUsername();
         UserAbstract currentUser = getAbstractUser(username);
 
@@ -1175,22 +1175,102 @@ public final class Admin {
 
     }
 
-//    public String loadRecommendations(User user) {
-//        if (!user.isStatus()) {
-//            return "%s is offline.".formatted(user.getUsername());
-//        }
-//        //if list is empty
-//        if (user.getSongRecommendations().isEmpty()) {
-//            return "You can't load an empty audio collection!";
-//        }
-//
-//        player.setSource(searchBar.getLastSelected(), searchBar.getLastSearchType());
-//        searchBar.clearSelection();
-//
-//        player.pause();
-//        // aici
-//        Admin.getInstance().getUserListens(this);
-//
-//        return "Playback loaded successfully.";
-//    }
+    public String updateRecommendationsRandomPlaylists(User user, CommandInput commandInput) {
+        String username = commandInput.getUsername();
+        UserAbstract currentUser = getAbstractUser(username);
+
+        if (currentUser == null) {
+            return "The username %s doesn't exist.".formatted(username);
+        } else if (!currentUser.userType().equals("user")) {
+            return "%s is not a normal user.".formatted(username);
+        }
+
+        if (user.getPlayer() == null || user.getPlayer().getSource() == null) {
+            return "No song is playing at the moment.";
+        }
+
+        user = (User) currentUser;
+        Song song = (Song) (user.getPlayer().getSource().getAudioFile());
+        Artist artist = Admin.getInstance().getArtist(song.getArtist());
+
+        // store the top genres of the user into a list
+        Map<String, Integer> trashHold = new HashMap<>();
+        trashHold = determineTopGenres(user, user.getLikedSongs());
+
+        List<String> topGenres = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : trashHold.entrySet()) {
+            topGenres.add(entry.getKey());
+        }
+
+        List<Song> topSongs = createRandomPlaylist(topGenres, user);
+        Playlist randomPlaylist = new Playlist("%s's recommendations".formatted(user.getUsername()), user.getUsername());
+
+        //add to user recs
+        user.getPlaylistRecommendations().add(randomPlaylist);
+        artist.setPresentsInterest(true);
+
+
+        return "The recommendations for user " + user.getUsername() + " have been updated successfully.";
+    }
+
+    // Implement the method to determine top genres
+    private Map<String, Integer> determineTopGenres(User user, List<Song> likedSongs) {
+        // determine top genres based on the liked songs of that user
+        Map<String, Integer> genreCounts = likedSongs.stream()
+                .collect(Collectors.groupingBy(Song::getGenre, Collectors.summingInt(song -> 1)));
+        Map <String, Integer> sortedGenreCounts = genreCounts.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(3).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        //Add to user.topGenres which is
+        user.setTopGenres(sortedGenreCounts);
+        return sortedGenreCounts;
+    }
+
+    // Implement the method to create a random playlist for each genre
+    private List<Song> createRandomPlaylist(List<String> topGenres, User user) {
+        // Your implementation here
+        //get top 5 songs from first genre sorted by likes
+        //get top 3 songs from second genre sorted by likes
+        //get top 2 songs from third genre sorted by likes
+        //return the list of songs
+        List<Song> topSongs2 = new ArrayList<>();
+        List<Song> topSongs3 = new ArrayList<>();
+
+        List<Song> topSongs1 = user.getLikedSongs().stream()
+                .filter(song -> song.getGenre().equalsIgnoreCase(topGenres.get(0)))
+                .sorted(Comparator.comparingInt(Song::getLikes).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+        if (topSongs1.size() > 1) {
+            topSongs2 = user.getLikedSongs().stream()
+                    .filter(song -> song.getGenre().equalsIgnoreCase(topGenres.get(1)))
+                    .sorted(Comparator.comparingInt(Song::getLikes).reversed())
+                    .limit(3)
+                    .collect(Collectors.toList());
+        }
+
+        if (topGenres.size() > 2) {
+            topSongs3 = user.getLikedSongs().stream()
+                    .filter(song -> song.getGenre().equalsIgnoreCase(topGenres.get(2)))
+                    .sorted(Comparator.comparingInt(Song::getLikes).reversed())
+                    .limit(2)
+                    .collect(Collectors.toList());
+        }
+
+        List<Song> combinedSongs = new ArrayList<>();
+        combinedSongs.addAll(topSongs1);
+        combinedSongs.addAll(topSongs2);
+        combinedSongs.addAll(topSongs3);
+
+        // Step 5: Remove duplicate songs
+        Set<Song> uniqueSongs = new HashSet<>(combinedSongs);
+        combinedSongs = new ArrayList<>(uniqueSongs);
+
+        // Step 6: Sort the combined list based on likes in descending order
+        combinedSongs.sort(Comparator.comparingInt(Song::getLikes).reversed());
+
+        // Step 7: Return the final list of distinct, sorted songs
+        return combinedSongs;
+
+    }
 }

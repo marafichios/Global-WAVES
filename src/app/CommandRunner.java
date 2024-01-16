@@ -5,6 +5,7 @@ import app.audio.Collections.PlaylistOutput;
 import app.audio.Collections.PodcastOutput;
 import app.pages.ArtistPage;
 import app.pages.Page;
+import app.player.Player;
 import app.player.PlayerStats;
 import app.searchBar.Filters;
 import app.user.Artist;
@@ -895,8 +896,13 @@ public final class CommandRunner {
         String type = commandInput.getRecommendationType();
         if (type.equals("random_song")) {
             message = admin.updateRecommendationsSongs(user);
+            user.setLastTypeOfRecommendation("random_song");
+        } else if (type.equals("fans_playlist")){
+            message = admin.updateRecommendationsPlaylistsFans(user, commandInput);
+            user.setLastTypeOfRecommendation("fans_playlist");
         } else {
-            message = admin.updateRecommendationsPlaylists(user, commandInput);
+            message = admin.updateRecommendationsRandomPlaylists(user, commandInput);
+            user.setLastTypeOfRecommendation("random_playlist");
         }
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("command", commandInput.getCommand());
@@ -908,13 +914,31 @@ public final class CommandRunner {
 
     public static ObjectNode loadRecommendations(CommandInput commandInput) {
         User user = admin.getUser(commandInput.getUsername());
-        //String message = user.loadRecommendations(user);
-
+        String message = "Playback loaded successfully";
+        Player player = user.getPlayer();
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("command", commandInput.getCommand());
         objectNode.put("user", user.getUsername());
         objectNode.put("timestamp", commandInput.getTimestamp());
-        //objectNode.put("message", message);
+        if (user == null) {
+            message = "nu";
+            objectNode.put("message", message);
+            return objectNode;
+        }
+        if (user.getLastTypeOfRecommendation() == null) {
+            message = "no se puede";
+            objectNode.put("message", message);
+            return objectNode;
+        }
+        if (user.getLastTypeOfRecommendation().equals("random_song")) {
+            player.setSource(user.getSongRecommendations().get(0), "song");
+            player.pause();
+        } else {
+            player.setSource(user.getPlaylistRecommendations().get(user.getPlaylistRecommendations().size() - 1), "playlist");
+            player.pause();
+        }
+        message = "Playback loaded successfully.";
+        objectNode.put("message", message);
         return objectNode;
     }
 }

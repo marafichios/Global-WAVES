@@ -84,9 +84,6 @@ public final class Main {
                                                                   + filePath1),
                                                                   CommandInput[].class);
         ArrayNode outputs = objectMapper.createArrayNode();
-//        if (!filePath1.contains("09")) {
-//            return;
-//        }
 
         Admin admin = Admin.getInstance();
         SearchBar.updateAdmin();
@@ -154,8 +151,8 @@ public final class Main {
                 case "nextPage" -> outputs.add(CommandRunner.nextPage(command));
                 case "updateRecommendations" -> outputs.add(CommandRunner
                                                         .updateRecommendations(command));
-                //case "loadRecommendations" -> outputs.add(CommandRunner
-                                                     //  .loadRecommendations(command));
+                case "loadRecommendations" -> outputs.add(CommandRunner
+                                                       .loadRecommendations(command));
                 default -> System.out.println("Invalid command " + commandName);
             }
         }
