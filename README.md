@@ -1,4 +1,4 @@
-#Project GlobalWaves
+# Project GlobalWaves
 
 ## Overview
 This project implements many commands, each one of them having a separate
